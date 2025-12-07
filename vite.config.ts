@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    // Support both API_KEY (Vercel) and GEMINI_API_KEY (local) for flexibility
+    const apiKey = env.API_KEY || env.GEMINI_API_KEY;
+    
     return {
       server: {
         port: 3000,
@@ -11,8 +14,10 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+        // Expose API key for both import.meta.env and process.env compatibility
+        'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(apiKey),
+        'process.env.API_KEY': JSON.stringify(apiKey),
+        'process.env.GEMINI_API_KEY': JSON.stringify(apiKey)
       },
       resolve: {
         alias: {
