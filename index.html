@@ -1,5 +1,6 @@
+
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -72,8 +73,20 @@
   <body class="bg-legal-light text-legal-dark font-sans antialiased selection:bg-legal-accent selection:text-white dark:bg-legal-dark dark:text-legal-light transition-colors duration-300">
     <div id="root"></div>
     <script>
-      // Initialize PDF.js worker
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      // Initialize PDF.js worker safely
+      function initPdfWorker() {
+        if (window.pdfjsLib) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        } else {
+          // If script loads async, wait for load event
+          window.addEventListener('load', function() {
+            if (window.pdfjsLib) {
+               window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            }
+          });
+        }
+      }
+      initPdfWorker();
     </script>
   </body>
 </html>
