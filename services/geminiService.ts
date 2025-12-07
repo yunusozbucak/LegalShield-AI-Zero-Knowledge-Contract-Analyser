@@ -60,7 +60,14 @@ const analysisSchema: Schema = {
 
 export const analyzeContract = async (text: string): Promise<AnalysisResult> => {
   // Initialize AI client lazily to avoid 'process is not defined' errors at module load time
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Support both API_KEY (Vercel) and VITE_GEMINI_API_KEY (local development)
+  const apiKey = (process.env as any).API_KEY || ((import.meta as any).env?.VITE_GEMINI_API_KEY);
+  
+  if (!apiKey) {
+    throw new Error("API_KEY is not set. Please add it to your Vercel environment variables or .env.local file.");
+  }
+  
+  const ai = new GoogleGenAI({ apiKey });
 
   // 1. PII Redaction (Client-Side)
   // Mask sensitive data BEFORE sending to API
