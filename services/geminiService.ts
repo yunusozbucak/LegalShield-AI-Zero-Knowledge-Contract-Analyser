@@ -3,7 +3,8 @@ import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult } from "../types";
 import { maskPII, unmaskPII } from "./piiService";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Move initialization inside the function to prevent top-level execution crashes
+// if process.env is accessed before the environment is fully loaded.
 
 const analysisSchema: Schema = {
   type: Type.OBJECT,
@@ -58,6 +59,9 @@ const analysisSchema: Schema = {
 };
 
 export const analyzeContract = async (text: string): Promise<AnalysisResult> => {
+  // Initialize AI client lazily to avoid 'process is not defined' errors at module load time
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
   // 1. PII Redaction (Client-Side)
   // Mask sensitive data BEFORE sending to API
   const { maskedText, piiMap } = maskPII(text);
