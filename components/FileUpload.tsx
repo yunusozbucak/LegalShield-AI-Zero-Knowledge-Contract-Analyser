@@ -83,7 +83,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
           id="dropzone-file" 
           type="file" 
           accept="application/pdf"
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
           onChange={handleChange}
           disabled={isLoading}
         />
