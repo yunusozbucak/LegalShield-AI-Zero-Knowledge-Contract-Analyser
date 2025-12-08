@@ -134,7 +134,7 @@ const App: React.FC = () => {
           <div className="flex items-center space-x-4 md:space-x-6">
              <button 
                 onClick={stage === AppStage.ABOUT ? goHome : goToAbout}
-                className="hidden md:flex items-center space-x-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-legal-primary dark:hover:text-legal-light transition-colors"
+                className="flex items-center space-x-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-legal-primary dark:hover:text-legal-light transition-colors"
              >
                {stage === AppStage.ABOUT ? 'Home' : 'Manifesto'}
              </button>
