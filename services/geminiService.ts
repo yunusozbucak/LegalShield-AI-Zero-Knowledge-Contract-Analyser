@@ -11,7 +11,7 @@ const analysisSchema: Schema = {
   properties: {
     summary: {
       type: Type.STRING,
-      description: "A comprehensive, clear, and professional executive summary of the document (STRICTLY IN ENGLISH). Max 2 paragraphs.",
+      description: "A comprehensive, clear, and professional executive summary of the document. Write this in the SAME LANGUAGE as the source document. Max 2 paragraphs.",
     },
     riskScore: {
       type: Type.INTEGER,
@@ -29,7 +29,7 @@ const analysisSchema: Schema = {
           },
           description: {
             type: Type.STRING,
-            description: "Legal explanation of why this is a risk (STRICTLY IN ENGLISH). Concise and professional."
+            description: "Legal explanation of why this is a risk. Write this in the SAME LANGUAGE as the source document. Concise and professional."
           },
           severity: {
             type: Type.STRING,
@@ -81,10 +81,10 @@ export const analyzeContract = async (text: string): Promise<AnalysisResult> => 
     Your Mission: Scan the following contract text to identify corporate risks and reduce operational load.
     
     === LANGUAGE PROTOCOL (CRITICAL) ===
-    1. **OUTPUT LANGUAGE:** All "summary", "description", and "category" fields MUST be written in **ENGLISH**.
+    1. **OUTPUT LANGUAGE:** The "summary" and "description" fields MUST be written in the **SAME LANGUAGE** as the source document. If the document is Turkish, write the report in Turkish. If English, write in English. The "category" field must strictly remain one of the allowed English Enum values.
     2. **INPUT LANGUAGE:** The source text might be in English, Turkish, or another language.
     3. **QUOTES:** When extracting the "quote", keep it exactly in the **ORIGINAL LANGUAGE** of the document. Do not translate the quote.
-    4. **ANALYSIS:** Analyze the meaning in the original language, but write your findings in English.
+    4. **ANALYSIS:** Analyze the meaning and write your findings in the language of the source document.
 
     === SECURITY & DATA PRIVACY PROTOCOL ===
     The text below contains placeholders like [REDACTED_ENTITY_1], [REDACTED_PERSON_1], [REDACTED_MONEY_1] etc.
@@ -125,7 +125,7 @@ export const analyzeContract = async (text: string): Promise<AnalysisResult> => 
 
     OUTPUT FORMAT:
     - Provide the response strictly in JSON format.
-    - All descriptions must be in professional **Legal English**.
+    - All descriptions must be in a professional **Legal tone**, matching the source document's language.
     - The summary must be concise, clear, and executive-focused (readable in 60 seconds).
     
     CONTRACT TEXT:
