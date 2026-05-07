@@ -35,6 +35,15 @@ const SummaryView: React.FC<SummaryViewProps> = ({ data, timeLeft, sessionToken,
 
   const isUrgent = timeLeft <= 10;
 
+  // Group risks by category
+  const groupedRisks = data.risks.reduce((acc, risk) => {
+    if (!acc[risk.category]) {
+      acc[risk.category] = [];
+    }
+    acc[risk.category].push(risk);
+    return acc;
+  }, {} as Record<string, typeof data.risks>);
+
   return (
     <div className="w-full max-w-6xl mx-auto pb-20 no-select select-none">
       
@@ -155,33 +164,40 @@ const SummaryView: React.FC<SummaryViewProps> = ({ data, timeLeft, sessionToken,
                 </div>
                 
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {data.risks.map((risk, idx) => (
-                        <div key={idx} className="p-8 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors group">
-                            <div className="flex items-start justify-between mb-3">
-                                <div className="flex items-center space-x-3">
-                                    <span className={`w-2 h-2 rounded-full ${risk.severity === 'High' ? 'bg-red-500' : risk.severity === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'}`}></span>
-                                    <h4 className="text-lg font-semibold text-legal-dark dark:text-gray-200">{risk.category}</h4>
-                                </div>
-                                <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded border ${
-                                    risk.severity === 'High' ? 'bg-white dark:bg-gray-800 border-red-200 dark:border-red-900 text-red-600 dark:text-red-400' : 
-                                    risk.severity === 'Medium' ? 'bg-white dark:bg-gray-800 border-yellow-200 dark:border-yellow-900 text-yellow-600 dark:text-yellow-400' : 
-                                    'bg-white dark:bg-gray-800 border-green-200 dark:border-green-900 text-green-600 dark:text-green-400'
-                                }`}>
-                                    {risk.severity === 'High' ? 'CRITICAL' : risk.severity === 'Medium' ? 'MEDIUM' : 'LOW'}
-                                </span>
+                    {Object.entries(groupedRisks).map(([category, categoryRisks], catIdx) => (
+                        <div key={catIdx} className="p-8">
+                            <h3 className="text-xl font-bold text-legal-dark dark:text-white mb-6 border-b border-gray-100 dark:border-gray-800 pb-2">{category}</h3>
+                            <div className="space-y-6">
+                                {categoryRisks.map((risk, idx) => (
+                                    <div key={idx} className="bg-gray-50/50 dark:bg-gray-800/30 p-6 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors group">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div className="flex items-center space-x-3">
+                                                <span className={`w-2 h-2 rounded-full ${risk.severity === 'High' ? 'bg-red-500' : risk.severity === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'}`}></span>
+                                                <h4 className="text-md font-medium text-gray-500 dark:text-gray-400">Finding {idx + 1}</h4>
+                                            </div>
+                                            <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded border ${
+                                                risk.severity === 'High' ? 'bg-white dark:bg-gray-800 border-red-200 dark:border-red-900 text-red-600 dark:text-red-400' : 
+                                                risk.severity === 'Medium' ? 'bg-white dark:bg-gray-800 border-yellow-200 dark:border-yellow-900 text-yellow-600 dark:text-yellow-400' : 
+                                                'bg-white dark:bg-gray-800 border-green-200 dark:border-green-900 text-green-600 dark:text-green-400'
+                                            }`}>
+                                                {risk.severity === 'High' ? 'CRITICAL' : risk.severity === 'Medium' ? 'MEDIUM' : 'LOW'}
+                                            </span>
+                                        </div>
+                                        
+                                        <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">{risk.description}</p>
+                                        
+                                        {/* Legal Quote - Styled like a legal citation */}
+                                        {risk.quote && (
+                                            <div className="mt-4 pl-4 border-l-2 border-legal-primary/20 dark:border-legal-light/20">
+                                                <p className="font-serif italic text-gray-500 dark:text-gray-400 text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-r-lg">
+                                                    <Quote className="inline w-3 h-3 text-gray-400 mr-2 -mt-1" />
+                                                    "{risk.quote}"
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
-                            
-                            <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">{risk.description}</p>
-                            
-                            {/* Legal Quote - Styled like a legal citation */}
-                            {risk.quote && (
-                                <div className="mt-4 pl-4 border-l-2 border-legal-primary/20 dark:border-legal-light/20">
-                                    <p className="font-serif italic text-gray-500 dark:text-gray-400 text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-r-lg">
-                                        <Quote className="inline w-3 h-3 text-gray-400 mr-2 -mt-1" />
-                                        "{risk.quote}"
-                                    </p>
-                                </div>
-                            )}
                         </div>
                     ))}
                 </div>
