@@ -76,20 +76,21 @@ export const analyzeContract = async (text: string): Promise<AnalysisResult> => 
   // Truncate text to fit context window efficiently
   const safeText = maskedText.slice(0, 500000); 
 
-  const prompt = `
+  const systemInstruction = `
     You are the Senior Legal Analyst Engine for "LegalShield AI".
-    Your Mission: Scan the following contract text to identify corporate risks and reduce operational load.
+    Your Mission: Scan the contract text to identify corporate risks and reduce operational load.
     
     === LANGUAGE PROTOCOL (CRITICAL) ===
-    1. **OUTPUT LANGUAGE:** YOU MUST WRITE THE "summary" and "description" FIELDS IN THE EXACT SAME LANGUAGE AS THE SOURCE CONTRACT.
-       - If the contract is in Turkish, write ALL text for "summary" and "description" in TURKISH!
-       - If the contract is in English, write in English.
-       - DO NOT write Turkish document analysis in English!
-    2. **CATEGORY:** The "category" field must strictly remain one of the allowed English Enum values.
-    3. **QUOTES:** When extracting the "quote", keep it exactly in the **ORIGINAL LANGUAGE** of the document. Do not translate the quote.
+    1. DETECT THE LANGUAGE of the provided contract.
+    2. YOU MUST WRITE the "summary" and "description" fields in the EXACT SAME LANGUAGE as the contract.
+       - If the contract is in TURKISH, write the summary and ALL descriptions in TURKISH!
+       - If the contract is in ENGLISH, write in ENGLISH.
+       - NEVER explain a Turkish contract in English.
+    3. The "category" field must strictly remain one of the allowed English Enum values.
+    4. When extracting the "quote", keep it exactly in the ORIGINAL LANGUAGE of the document. Do not translate the quote.
 
     === SECURITY & DATA PRIVACY PROTOCOL ===
-    The text below contains placeholders like [REDACTED_ENTITY_1], [REDACTED_PERSON_1], [REDACTED_MONEY_1] etc.
+    The text contains placeholders like [REDACTED_ENTITY_1], [REDACTED_PERSON_1], [REDACTED_MONEY_1] etc.
     These are CRITICAL SENSITIVE MASKS replacing real personal and commercial data.
     
     Strictly adhere to these rules:
@@ -121,15 +122,19 @@ export const analyzeContract = async (text: string): Promise<AnalysisResult> => 
        - Is the dispute resolution location costly or distant (e.g., foreign arbitration)?
 
     TASKS:
-    - For every risk identified, extract **PROOF (QUOTE)** from the text in the ORIGINAL LANGUAGE.
-    - Assign a **Severity Score** (High/Medium/Low) to each risk. Clauses deviating from standard market conditions should be "High".
-    - **Risk Score:** Rate the overall danger level of the document between 0-100.
-
-    OUTPUT FORMAT:
-    - Provide the response strictly in JSON format.
-    - All descriptions must be in a professional **Legal tone**, matching the source document's language.
-    - The summary must be concise, clear, and executive-focused (readable in 60 seconds).
+    - For every risk identified, extract PROOF (QUOTE) from the text in the ORIGINAL LANGUAGE.
+    - Assign a Severity Score (High/Medium/Low) to each risk. Clauses deviating from standard market conditions should be "High".
+    - Risk Score: Rate the overall danger level of the document between 0-100.
     
+    OUTPUT FORMAT:
+    - Provide the response strictly in JSON format matching the schema.
+    - The summary must be concise, clear, and executive-focused (readable in 60 seconds).
+  `;
+
+  const userPrompt = `
+    Analyze the following contract. 
+    CRITICAL REMINDER: Your response MUST be in the SAME LANGUAGE as this contract text. If the text is Turkish, your 'summary' and 'description' fields MUST be in Turkish.
+
     CONTRACT TEXT:
     ${safeText}
   `;
@@ -137,8 +142,9 @@ export const analyzeContract = async (text: string): Promise<AnalysisResult> => 
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: prompt,
+      contents: userPrompt,
       config: {
+        systemInstruction,
         responseMimeType: "application/json",
         responseSchema: analysisSchema,
         temperature: 0.1, // Very low temperature for analytical precision
