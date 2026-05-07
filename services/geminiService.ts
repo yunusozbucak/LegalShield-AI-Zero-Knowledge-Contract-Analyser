@@ -11,7 +11,7 @@ const analysisSchema: Schema = {
   properties: {
     summary: {
       type: Type.STRING,
-      description: "A comprehensive, clear, and professional executive summary of the document. Write this in the SAME LANGUAGE as the source document. Max 2 paragraphs.",
+      description: "A comprehensive, clear, and professional executive summary of the document. MUST BE IN THE SAME LANGUAGE AS THE DOCUMENT. If the document is Turkish, WRITE THIS IN TURKISH. Max 2 paragraphs.",
     },
     riskScore: {
       type: Type.INTEGER,
@@ -29,7 +29,7 @@ const analysisSchema: Schema = {
           },
           description: {
             type: Type.STRING,
-            description: "Legal explanation of why this is a risk. Write this in the SAME LANGUAGE as the source document. Concise and professional."
+            description: "Legal explanation of why this is a risk. MUST BE IN THE SAME LANGUAGE AS THE DOCUMENT. If the document is Turkish, WRITE THIS IN TURKISH. Concise and professional."
           },
           severity: {
             type: Type.STRING,
@@ -47,7 +47,7 @@ const analysisSchema: Schema = {
     keyDates: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
-      description: "Critical dates in the contract (Effective Date, Expiration, Auto-Renewal, etc.) in English format."
+      description: "Critical dates in the contract (Effective Date, Expiration, Auto-Renewal, etc.)."
     },
     parties: {
       type: Type.ARRAY,
@@ -81,10 +81,12 @@ export const analyzeContract = async (text: string): Promise<AnalysisResult> => 
     Your Mission: Scan the following contract text to identify corporate risks and reduce operational load.
     
     === LANGUAGE PROTOCOL (CRITICAL) ===
-    1. **OUTPUT LANGUAGE:** The "summary" and "description" fields MUST be written in the **SAME LANGUAGE** as the source document. If the document is Turkish, write the report in Turkish. If English, write in English. The "category" field must strictly remain one of the allowed English Enum values.
-    2. **INPUT LANGUAGE:** The source text might be in English, Turkish, or another language.
+    1. **OUTPUT LANGUAGE:** YOU MUST WRITE THE "summary" and "description" FIELDS IN THE EXACT SAME LANGUAGE AS THE SOURCE CONTRACT.
+       - If the contract is in Turkish, write ALL text for "summary" and "description" in TURKISH!
+       - If the contract is in English, write in English.
+       - DO NOT write Turkish document analysis in English!
+    2. **CATEGORY:** The "category" field must strictly remain one of the allowed English Enum values.
     3. **QUOTES:** When extracting the "quote", keep it exactly in the **ORIGINAL LANGUAGE** of the document. Do not translate the quote.
-    4. **ANALYSIS:** Analyze the meaning and write your findings in the language of the source document.
 
     === SECURITY & DATA PRIVACY PROTOCOL ===
     The text below contains placeholders like [REDACTED_ENTITY_1], [REDACTED_PERSON_1], [REDACTED_MONEY_1] etc.
