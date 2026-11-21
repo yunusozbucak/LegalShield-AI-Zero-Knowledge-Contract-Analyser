@@ -8,7 +8,7 @@ A privacy-first contract analysis engine: it analyses contracts with AI without 
 
 1. **Upload:** The PDF is parsed in the browser (`services/pdfService.ts`) and never written to disk.
 2. **Mask:** Personally identifiable information is redacted with regex patterns before anything leaves the browser (`services/piiService.ts`).
-3. **Analyse:** The masked text goes to Google Gemini for a summary and a risk analysis grouped by category (`services/geminiService.ts`). The response uses the document's own language.
+3. **Analyse:** Only the masked text is sent to a server-side Vercel Function (`api/analyze.ts`), which calls Google Gemini for a summary and a risk analysis grouped by category. The response uses the document's own language. The API key stays on the server and nothing is stored.
 4. **Self-destruct:** The results are shown in a session with a countdown timer. When it expires, the session data is wiped.
 
 ## Tech stack
@@ -38,7 +38,7 @@ npm run dev                  # http://localhost:3000
 
 | Name | Description |
 | --- | --- |
-| `GEMINI_API_KEY` | Gemini API key for local development |
+| `GEMINI_API_KEY` | Gemini API key (server-side only) |
 | `API_KEY` | Alternative name, used for Vercel deployments |
 
-> ⚠️ Vite inlines this key into the client bundle at build time, so anyone who opens the deployed app can read it. Restrict the key (by HTTP referrer, with a quota) in Google AI Studio.
+The key is read only by `api/analyze.ts`; it is never bundled into the client. `npm run dev` serves `/api/analyze` locally through a small Vite middleware, so no extra tooling is needed.
